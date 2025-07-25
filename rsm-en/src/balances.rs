@@ -1,11 +1,7 @@
 use std::collections::BTreeMap;
-
-
-
 pub struct Pallet {
 
     balances: BTreeMap<String, u128> // String for key, u128 for unsigned for positive-only vals
-
 }
 
 impl Pallet {
@@ -18,12 +14,10 @@ impl Pallet {
         }
     }
 
-
     pub fn set_balance(&mut self, who: &String, amount: u128){
 
         self.balances.insert(who.clone(), amount);
     }
-
 
     pub fn get_balance(&mut self, who: &String) -> u128{
         
@@ -43,7 +37,4 @@ impl Pallet {
 
         Ok(())
     }
-
-
-
 }
