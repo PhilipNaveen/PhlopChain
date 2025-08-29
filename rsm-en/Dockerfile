@@ -18,5 +18,9 @@ RUN cargo build --release --bin web_server
 # Expose port
 EXPOSE 3030
 
+# Set environment for better logging
+ENV RUST_LOG=debug
+ENV RUST_BACKTRACE=1
+
 # Run the web server
 CMD ["./target/release/web_server"]

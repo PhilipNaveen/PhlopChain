@@ -2,11 +2,12 @@
 
 A blockchain implementation that uses Rock-Paper-Scissors as its mining algorithm instead of traditional proof-of-work.
 
-## Architecture Diagram
 
-![PhlopChain Architecture](blockchain_architecture.png)
+
+![GUI](UI.png)
 
 *Complete visual overview of PhlopChain's Rock-Paper-Scissors blockchain architecture, showing block structure, Merkle trees, mining process, and system components.*
+
 
 ## What is PhlopChain?
 
@@ -46,6 +47,14 @@ Miners earn PhlopCoin based on the formula: `n/a^2`
 - `a` = actual number of games played
 
 This rewards efficient miners who achieve the required wins quickly.
+
+
+## Architecture Diagram
+
+![PhlopChain Architecture](blockchain_architecture.png)
+
+*Complete visual overview of PhlopChain's Rock-Paper-Scissors blockchain architecture, showing block structure, Merkle trees, mining process, and system components.*
+
 
 ## Technical Features
 
@@ -99,9 +108,11 @@ rsm-en/
 
 ### Docker
 
-1. **Build**: `docker build -t phlopchain .`
-2. **Run**: `docker run -p 3030:3030 phlopchain`
-3. **Access**: Open `http://localhost:3030`
+1. **Build and Run**: `docker compose up`
+2. **Access**: Open `http://localhost:3031`
+3. **Alternative**: `docker run -p 3031:3030 phlopchain`
+
+*Note: Docker uses port 3031 to avoid conflicts with local development.*
 
 ## How Blockchain Validation Works
 
