@@ -2,6 +2,7 @@ use crate::merkle::{Hash, FastMerkleTree};
 use crate::transaction::{Transaction, Block};
 use crate::system::Pallet as SystemPallet;
 use crate::balances::Pallet as BalancesPallet;
+use crate::rps_mining::{RPSMiner, RPSMiningConfig};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
@@ -13,10 +14,14 @@ pub struct Blockchain {
     pub mining_reward: u128,
     pub system: SystemPallet,
     pub balances: BalancesPallet,
+    pub rps_miner: RPSMiner,
 }
 
 impl Blockchain {
     pub fn new() -> Self {
+        let rps_config = crate::rps_mining::RPSMiningConfig::new();
+        let rps_miner = RPSMiner::new(rps_config);
+        
         let mut blockchain = Self {
             chain: Vec::new(),
             difficulty: 2,
@@ -24,6 +29,7 @@ impl Blockchain {
             mining_reward: 100,
             system: SystemPallet::new(),
             balances: BalancesPallet::new(),
+            rps_miner,
         };
         
         // Create genesis block
@@ -33,7 +39,8 @@ impl Blockchain {
 
     fn create_genesis_block(&mut self) {
         let mut genesis = Block::genesis();
-        genesis.mine_block(self.difficulty);
+        // Genesis block doesn't need RPS mining, just set a simple hash
+        genesis.hash = genesis.calculate_hash();
         self.chain.push(genesis);
         
         // Initialize some accounts with genesis balances

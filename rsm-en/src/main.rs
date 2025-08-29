@@ -6,6 +6,7 @@ mod system;
 mod merkle;
 mod transaction;
 mod blockchain;
+mod rps_mining;
 
 fn main() {
     println!("🚀 PhlopChain - Fast Merkle Tree Blockchain Implementation");

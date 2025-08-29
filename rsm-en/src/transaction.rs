@@ -1,4 +1,5 @@
 use crate::merkle::Hash;
+use crate::rps_mining::{RPSMiningResult};
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 
@@ -58,7 +59,7 @@ pub struct Block {
     pub previous_hash: Hash,
     pub merkle_root: Hash,
     pub hash: Hash,
-    pub nonce: u64,
+    pub rps_mining_result: Option<RPSMiningResult>,
 }
 
 impl Block {
@@ -73,7 +74,7 @@ impl Block {
             previous_hash,
             merkle_root,
             hash: Hash::from_string(""), // Temporary
-            nonce: 0,
+            rps_mining_result: None,
         };
         
         block.hash = block.calculate_hash();
@@ -86,13 +87,19 @@ impl Block {
     }
 
     pub fn calculate_hash(&self) -> Hash {
+        let rps_data = if let Some(ref result) = self.rps_mining_result {
+            format!("{}:{}", result.rounds, result.total_games)
+        } else {
+            "pending".to_string()
+        };
+        
         let data = format!(
             "{}{}{}{}{}",
             self.index,
             self.timestamp.timestamp(),
             self.previous_hash.to_hex(),
             self.merkle_root.to_hex(),
-            self.nonce
+            rps_data
         );
         Hash::from_string(&data)
     }
@@ -111,18 +118,54 @@ impl Block {
         tree.get_root().cloned().unwrap_or_else(|| Hash::from_string("empty"))
     }
 
+    pub fn mine_block_rps(&mut self, rps_miner: &mut crate::rps_mining::RPSMiner) -> Result<(), String> {
+        // Create block data for RPS mining
+        let block_data = format!(
+            "{}{}{}{}",
+            self.index,
+            self.timestamp.timestamp(),
+            self.previous_hash.to_hex(),
+            self.merkle_root.to_hex()
+        );
+        
+        // Use RPS mining to mine the block
+        match rps_miner.mine_block(&block_data) {
+            Ok(mining_result) => {
+                self.rps_mining_result = Some(mining_result.clone());
+                self.hash = self.calculate_hash();
+                
+                println!("Block mined with RPS: {} (Rounds: {}, Games: {})", 
+                         self.hash, mining_result.rounds, mining_result.total_games);
+                Ok(())
+            }
+            Err(e) => Err(e)
+        }
+    }
+
+    #[allow(dead_code)]
     pub fn mine_block(&mut self, difficulty: usize) {
+        // Legacy function for compatibility - now uses minimal computation
         let target = "0".repeat(difficulty);
+        let mut nonce = 0u64;
         
         loop {
-            self.hash = self.calculate_hash();
+            let data = format!(
+                "{}{}{}{}{}",
+                self.index,
+                self.timestamp.timestamp(),
+                self.previous_hash.to_hex(),
+                self.merkle_root.to_hex(),
+                nonce
+            );
+            self.hash = Hash::from_string(&data);
+            
             if self.hash.to_hex().starts_with(&target) {
                 break;
             }
-            self.nonce += 1;
+            nonce += 1;
         }
         
-        println!("Block mined: {} with nonce: {}", self.hash, self.nonce);
+        println!("Block mined: {} with nonce: {}", self.hash, nonce);
     }
 
     pub fn is_valid(&self, previous_block: Option<&Block>) -> bool {
