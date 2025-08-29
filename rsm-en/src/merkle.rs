@@ -6,6 +6,7 @@ use std::fmt;
 pub struct Hash([u8; 32]);
 
 impl Hash {
+    #[allow(dead_code)]
     pub fn new(data: [u8; 32]) -> Self {
         Self(data)
     }
@@ -33,6 +34,7 @@ impl Hash {
         Hash(hash)
     }
 
+    #[allow(dead_code)]
     pub fn as_bytes(&self) -> &[u8; 32] {
         &self.0
     }
@@ -64,6 +66,7 @@ impl FastMerkleTree {
         }
     }
 
+    #[allow(dead_code)]
     pub fn from_data(data: Vec<String>) -> Self {
         let mut tree = Self::new();
         for item in data {
@@ -173,10 +176,12 @@ impl FastMerkleTree {
         current_hash
     }
 
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.leaves.len()
     }
 
+    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.leaves.is_empty()
     }

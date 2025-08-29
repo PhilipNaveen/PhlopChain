@@ -19,6 +19,7 @@ impl Pallet{
         }
     } 
 
+    #[allow(dead_code)]
     pub fn get_block_number(&self) -> u32 {
 
         self.block_number

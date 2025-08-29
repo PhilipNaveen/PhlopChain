@@ -193,10 +193,12 @@ impl Blockchain {
         false
     }
 
+    #[allow(dead_code)]
     pub fn get_block_by_index(&self, index: u32) -> Option<&Block> {
         self.chain.get(index as usize)
     }
 
+    #[allow(dead_code)]
     pub fn get_block_by_hash(&self, hash: &Hash) -> Option<&Block> {
         self.chain.iter().find(|block| block.hash == *hash)
     }
@@ -209,6 +211,7 @@ impl Blockchain {
         self.pending_transactions.len()
     }
 
+    #[allow(dead_code)]
     pub fn set_difficulty(&mut self, difficulty: usize) {
         self.difficulty = difficulty;
     }
