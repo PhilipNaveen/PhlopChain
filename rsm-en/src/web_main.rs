@@ -84,14 +84,19 @@ fn main() {
 }
 
 fn handle_connection(mut stream: TcpStream, blockchain: SharedBlockchain, sessions: SharedSessions) {
-    let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
+    let mut buffer = [0; 4096]; // Increased buffer size
+    let bytes_read = stream.read(&mut buffer).unwrap_or(0);
     
-    let request = String::from_utf8_lossy(&buffer[..]);
+    let request = String::from_utf8_lossy(&buffer[..bytes_read]);
     let request_line = request.lines().next().unwrap_or("");
+    
+    println!("Received request: {}", request_line); // Debug log
     
     let (status_line, contents) = if request_line.starts_with("GET / ") {
         ("HTTP/1.1 200 OK".to_string(), get_index_html())
+    } else if request_line.starts_with("OPTIONS") {
+        // Handle CORS preflight requests
+        ("HTTP/1.1 200 OK".to_string(), String::new())
     } else if request_line.starts_with("POST /api/start") {
         handle_start_mining(&request, sessions)
     } else if request_line.starts_with("POST /api/mine") {
@@ -116,11 +121,13 @@ fn handle_connection(mut stream: TcpStream, blockchain: SharedBlockchain, sessio
     stream.flush().unwrap();
 }
 
-fn extract_body(request: &str) -> &str {
+fn extract_body(request: &str) -> String {
     if let Some(body_start) = request.find("\r\n\r\n") {
-        &request[body_start + 4..]
+        let body = &request[body_start + 4..];
+        // Clean up the body by removing null bytes and extra characters
+        body.trim_matches('\0').trim().to_string()
     } else {
-        ""
+        String::new()
     }
 }
 
@@ -135,8 +142,9 @@ fn extract_session_id(request_line: &str) -> String {
 
 fn handle_start_mining(request: &str, sessions: SharedSessions) -> (String, String) {
     let body = extract_body(request);
+    println!("Received start mining request body: '{}'", body); // Debug log
     
-    if let Ok(req) = serde_json::from_str::<StartMiningRequest>(body) {
+    if let Ok(req) = serde_json::from_str::<StartMiningRequest>(&body) {
         let session_id = generate_uuid();
         let session = MinerSession {
             id: session_id.clone(),
@@ -164,20 +172,30 @@ fn handle_start_mining(request: &str, sessions: SharedSessions) -> (String, Stri
 
 fn handle_mine_block(request: &str, blockchain: SharedBlockchain, sessions: SharedSessions) -> (String, String) {
     let body = extract_body(request);
+    println!("Received mine block request body: '{}'", body); // Debug log
     
-    if let Ok(req) = serde_json::from_str::<MineBlockRequest>(body) {
+    if let Ok(req) = serde_json::from_str::<MineBlockRequest>(&body) {
         let mut sessions_guard = sessions.lock().unwrap();
         if let Some(session) = sessions_guard.get_mut(&req.session_id) {
-            // Add a dummy transaction for mining
-            let tx = Transaction::new(
-                "network".to_string(),
+            // Add a few dummy transactions to make mining more interesting
+            let tx1 = Transaction::new(
+                "alice".to_string(),
                 session.name.clone(),
-                10,
+                5, // Small amount
+                1,
+            );
+            let tx2 = Transaction::new(
+                session.name.clone(),
+                "bob".to_string(),
+                3, // Small amount
                 session.blocks_mined + 1,
             );
             
             let mut blockchain_guard = blockchain.lock().unwrap();
-            let _ = blockchain_guard.add_transaction(tx); // Ignore errors for demo
+            
+            // Add transactions (ignore errors for demo purposes)
+            let _ = blockchain_guard.add_transaction(tx1);
+            let _ = blockchain_guard.add_transaction(tx2);
             
             match blockchain_guard.mine_pending_transactions(session.name.clone()) {
                 Ok(block) => {

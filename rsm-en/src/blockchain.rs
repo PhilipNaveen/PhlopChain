@@ -75,11 +75,7 @@ impl Blockchain {
     }
 
     pub fn mine_pending_transactions(&mut self, mining_reward_address: String) -> Result<Block, String> {
-        if self.pending_transactions.is_empty() {
-            return Err("No pending transactions to mine".to_string());
-        }
-
-        // Add mining reward transaction
+        // Always add a mining reward transaction, even if no other pending transactions
         let reward_tx = Transaction::new(
             "network".to_string(),
             mining_reward_address.clone(),
@@ -90,7 +86,7 @@ impl Blockchain {
         let mut transactions = Vec::new();
         transactions.push(reward_tx);
 
-        // Process pending transactions
+        // Process any existing pending transactions
         while let Some(tx) = self.pending_transactions.pop_front() {
             // Execute the transaction
             match self.balances.transfer(
@@ -170,6 +166,7 @@ impl Blockchain {
         true
     }
 
+    #[allow(dead_code)]
     pub fn get_transaction_history(&self, address: &String) -> Vec<&Transaction> {
         let mut history = Vec::new();
         
@@ -184,6 +181,7 @@ impl Blockchain {
         history
     }
 
+    #[allow(dead_code)]
     pub fn find_transaction(&self, tx_hash: &Hash) -> Option<(&Block, &Transaction, usize)> {
         for block in &self.chain {
             for (index, tx) in block.transactions.iter().enumerate() {
@@ -195,6 +193,7 @@ impl Blockchain {
         None
     }
 
+    #[allow(dead_code)]
     pub fn get_transaction_proof(&self, tx_hash: &Hash) -> Option<(Vec<Hash>, usize, u32)> {
         if let Some((block, _tx, tx_index)) = self.find_transaction(tx_hash) {
             if let Some(proof) = block.get_transaction_proof(tx_index) {
@@ -204,6 +203,7 @@ impl Blockchain {
         None
     }
 
+    #[allow(dead_code)]
     pub fn verify_transaction_proof(&self, tx: &Transaction, proof: &[Hash], tx_index: usize, block_index: u32) -> bool {
         if let Some(block) = self.chain.get(block_index as usize) {
             return block.verify_transaction_inclusion(tx, proof, tx_index);
@@ -225,6 +225,7 @@ impl Blockchain {
         self.chain.len()
     }
 
+    #[allow(dead_code)]
     pub fn get_pending_transaction_count(&self) -> usize {
         self.pending_transactions.len()
     }
@@ -234,6 +235,7 @@ impl Blockchain {
         self.difficulty = difficulty;
     }
 
+    #[allow(dead_code)]
     pub fn get_network_hash_rate(&self) -> f64 {
         if self.chain.len() < 2 {
             return 0.0;
@@ -273,6 +275,7 @@ impl Blockchain {
             .sum()
     }
 
+    #[allow(dead_code)]
     pub fn create_state_merkle_tree(&self) -> FastMerkleTree {
         let mut tree = FastMerkleTree::new();
         
@@ -286,6 +289,7 @@ impl Blockchain {
         tree
     }
 
+    #[allow(dead_code)]
     pub fn get_state_root(&self) -> Option<Hash> {
         let tree = self.create_state_merkle_tree();
         tree.get_root().cloned()
