@@ -70,7 +70,8 @@ fn main() {
     let blockchain = Arc::new(Mutex::new(Blockchain::new()));
     let sessions: SharedSessions = Arc::new(Mutex::new(HashMap::new()));
 
-    let listener = TcpListener::bind("127.0.0.1:3030").unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3030").unwrap();
+    println!("PhlopChain web server running on http://0.0.0.0:3030");
     
     for stream in listener.incoming() {
         let stream = stream.unwrap();
