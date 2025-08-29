@@ -119,6 +119,7 @@ impl FastMerkleTree {
         self.root.as_ref()
     }
 
+    #[allow(dead_code)]
     pub fn get_proof(&self, index: usize) -> Option<Vec<Hash>> {
         if index >= self.leaves.len() || self.nodes.is_empty() {
             return None;
@@ -152,6 +153,7 @@ impl FastMerkleTree {
         Some(proof)
     }
 
+    #[allow(dead_code)]
     pub fn verify_proof(&self, leaf: &Hash, proof: &[Hash], index: usize) -> bool {
         if let Some(root) = &self.root {
             let calculated_root = self.calculate_root_from_proof(leaf, proof, index);
@@ -161,6 +163,7 @@ impl FastMerkleTree {
         }
     }
 
+    #[allow(dead_code)]
     fn calculate_root_from_proof(&self, leaf: &Hash, proof: &[Hash], mut index: usize) -> Hash {
         let mut current_hash = leaf.clone();
 

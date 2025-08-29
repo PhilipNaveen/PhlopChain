@@ -141,10 +141,12 @@ impl Blockchain {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_balance(&mut self, address: &String) -> u128 {
         self.balances.get_balance(address)
     }
 
+    #[allow(dead_code)]
     pub fn is_chain_valid(&self) -> bool {
         for i in 1..self.chain.len() {
             let current_block = &self.chain[i];

@@ -129,7 +129,7 @@ impl Block {
         let block_data = format!(
             "{}{}{}{}",
             self.index,
-            self.timestamp.timestamp(),
+            self.timestamp,
             self.previous_hash.to_hex(),
             self.merkle_root.to_hex()
         );
@@ -174,6 +174,7 @@ impl Block {
         println!("Block mined: {} with nonce: {}", self.hash, nonce);
     }
 
+    #[allow(dead_code)]
     pub fn is_valid(&self, previous_block: Option<&Block>) -> bool {
         // Check if hash is correctly calculated
         if self.hash != self.calculate_hash() {
@@ -207,6 +208,7 @@ impl Block {
         true
     }
 
+    #[allow(dead_code)]
     pub fn get_transaction_proof(&self, tx_index: usize) -> Option<Vec<Hash>> {
         if tx_index >= self.transactions.len() {
             return None;
@@ -221,6 +223,7 @@ impl Block {
         tree.get_proof(tx_index)
     }
 
+    #[allow(dead_code)]
     pub fn verify_transaction_inclusion(&self, tx: &Transaction, proof: &[Hash], tx_index: usize) -> bool {
         let mut tree = crate::merkle::FastMerkleTree::new();
         for transaction in &self.transactions {

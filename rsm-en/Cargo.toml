@@ -8,3 +8,11 @@ sha2 = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 hex = "0.4"
+
+[[bin]]
+name = "blockchain"
+path = "src/main.rs"
+
+[[bin]]
+name = "web_server"
+path = "src/web_main.rs"
