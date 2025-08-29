@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            background: white;
             min-height: 100vh;
             color: #333;
         }
@@ -27,31 +27,33 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            color: white;
+            color: black;
+            border-bottom: 2px solid black;
+            padding-bottom: 20px;
         }
 
         .header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: bold;
         }
 
         .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: 1.1rem;
+            color: #666;
         }
 
         .card {
             background: white;
-            border-radius: 15px;
+            border: 2px solid black;
+            border-radius: 5px;
             padding: 25px;
             margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
+            transition: border-color 0.3s ease;
         }
 
         .card:hover {
-            transform: translateY(-2px);
+            border-color: #666;
         }
 
         .login-section {
@@ -77,23 +79,23 @@
         input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            border: 2px solid black;
+            border-radius: 3px;
             font-size: 16px;
             transition: border-color 0.3s ease;
         }
 
         input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #666;
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: black;
             color: white;
-            border: none;
+            border: 2px solid black;
             padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 3px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
@@ -102,14 +104,15 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: white;
+            color: black;
         }
 
         .btn:disabled {
             background: #ccc;
+            border-color: #ccc;
+            color: #666;
             cursor: not-allowed;
-            transform: none;
         }
 
         .stats-grid {
@@ -120,11 +123,12 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: black;
             color: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 3px;
             text-align: center;
+            border: 2px solid black;
         }
 
         .stat-value {
@@ -144,16 +148,16 @@
         }
 
         .history-item {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
+            background: #f9f9f9;
+            border-left: 4px solid black;
             padding: 15px;
             margin: 10px 0;
-            border-radius: 0 8px 8px 0;
+            border-radius: 3px;
             transition: background-color 0.3s ease;
         }
 
         .history-item:hover {
-            background: #e9ecef;
+            background: #f0f0f0;
         }
 
         .history-header {
@@ -165,12 +169,12 @@
 
         .block-number {
             font-weight: bold;
-            color: #667eea;
+            color: black;
             font-size: 1.1rem;
         }
 
         .phlopcoin-earned {
-            color: #28a745;
+            color: #333;
             font-weight: bold;
             font-size: 1.1rem;
         }
@@ -181,11 +185,12 @@
         }
 
         .blockchain-status {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: black;
             color: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 3px;
             margin-bottom: 20px;
+            border: 2px solid black;
         }
 
         .status-title {
@@ -219,7 +224,7 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid black;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-left: 10px;
@@ -235,12 +240,13 @@
             top: 20px;
             right: 20px;
             padding: 15px 20px;
-            border-radius: 8px;
+            border-radius: 3px;
             color: white;
             font-weight: bold;
             z-index: 1000;
             transform: translateX(400px);
             transition: transform 0.3s ease;
+            border: 2px solid;
         }
 
         .notification.show {
@@ -248,11 +254,14 @@
         }
 
         .notification.success {
-            background: #28a745;
+            background: black;
+            border-color: black;
         }
 
         .notification.error {
-            background: #dc3545;
+            background: white;
+            color: black;
+            border-color: black;
         }
 
         @media (max-width: 768px) {
@@ -273,13 +282,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎮 PhlopChain</h1>
+            <h1>PhlopChain</h1>
             <p>Rock-Paper-Scissors Blockchain Mining</p>
         </div>
 
         <!-- Blockchain Status -->
         <div class="blockchain-status">
-            <div class="status-title">🌐 Network Status</div>
+            <div class="status-title">Network Status</div>
             <div class="status-grid">
                 <div class="status-item">
                     <div class="status-value" id="totalBlocks">0</div>
@@ -302,13 +311,13 @@
 
         <!-- Login Section -->
         <div class="card login-section" id="loginSection">
-            <h2 style="text-align: center; margin-bottom: 25px; color: #667eea;">⛏️ Start Mining</h2>
+            <h2 style="text-align: center; margin-bottom: 25px; color: black;">Start Mining</h2>
             <div class="input-group">
                 <label for="minerName">Miner Name:</label>
                 <input type="text" id="minerName" placeholder="Enter your name" maxlength="20">
             </div>
             <button class="btn" onclick="startMining()" style="width: 100%;">
-                🚀 Begin Mining Adventure
+                Begin Mining
             </button>
         </div>
 
@@ -318,34 +327,34 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value" id="totalPhlopcoin">0.000000</div>
-                    <div class="stat-label">💰 Total PhlopCoin</div>
+                    <div class="stat-label">Total PhlopCoin</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="blocksMined">0</div>
-                    <div class="stat-label">⛏️ Blocks Mined</div>
+                    <div class="stat-label">Blocks Mined</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="averageReward">0.000000</div>
-                    <div class="stat-label">📊 Average Reward</div>
+                    <div class="stat-label">Average Reward</div>
                 </div>
             </div>
 
             <!-- Mining Controls -->
             <div class="card">
-                <h3 style="margin-bottom: 20px; color: #667eea;">🎮 Mining Control</h3>
+                <h3 style="margin-bottom: 20px; color: black;">Mining Control</h3>
                 <button class="btn" id="mineButton" onclick="mineBlock()" style="font-size: 18px; padding: 15px 40px;">
-                    ⛏️ Mine Block
+                    Mine Block
                 </button>
                 <p style="margin-top: 15px; color: #666; font-style: italic;">
-                    Click to start a Rock-Paper-Scissors mining battle with 100 virtual players!
+                    Click to start a Rock-Paper-Scissors mining battle with 100 virtual players.
                 </p>
             </div>
 
             <!-- Mining History -->
             <div class="card">
-                <h3 style="margin-bottom: 20px; color: #667eea;">📋 Mining History</h3>
+                <h3 style="margin-bottom: 20px; color: black;">Mining History</h3>
                 <div class="mining-history" id="miningHistory">
-                    <p style="text-align: center; color: #666; font-style: italic;">No blocks mined yet. Start mining to see your history!</p>
+                    <p style="text-align: center; color: #666; font-style: italic;">No blocks mined yet. Start mining to see your history.</p>
                 </div>
             </div>
         </div>
@@ -416,7 +425,7 @@
             isMining = true;
             const mineButton = document.getElementById('mineButton');
             const originalText = mineButton.innerHTML;
-            mineButton.innerHTML = '⛏️ Mining... <div class="loading"></div>';
+            mineButton.innerHTML = 'Mining... <div class="loading"></div>';
             mineButton.disabled = true;
 
             try {
@@ -475,12 +484,12 @@
             historyItem.className = 'history-item';
             historyItem.innerHTML = `
                 <div class="history-header">
-                    <span class="block-number">🧱 Block #${miningResult.block_number}</span>
+                    <span class="block-number">Block #${miningResult.block_number}</span>
                     <span class="phlopcoin-earned">+${miningResult.phlopcoin_earned.toFixed(6)} PhlopCoin</span>
                 </div>
                 <div class="history-details">
-                    🎮 ${miningResult.games_played.toLocaleString()} games played in ${miningResult.rounds} rounds<br>
-                    ⏰ ${miningResult.timestamp}
+                    ${miningResult.games_played.toLocaleString()} games played in ${miningResult.rounds} rounds<br>
+                    ${miningResult.timestamp}
                 </div>
             `;
             

@@ -9,7 +9,7 @@ mod blockchain;
 mod rps_mining;
 
 fn main() {
-    println!("🚀 PhlopChain - Fast Merkle Tree Blockchain Implementation");
+    println!("PhlopChain - Fast Merkle Tree Blockchain Implementation");
     println!("{}", "=".repeat(60));
 
     // Run CLI demonstration
@@ -20,11 +20,11 @@ fn run_cli_demo() {
 
     // Initialize blockchain
     let mut blockchain = Blockchain::new();
-    println!("✅ Blockchain initialized with genesis block");
+    println!("Blockchain initialized with genesis block");
     println!("Genesis block hash: {}", blockchain.get_latest_block().hash);
 
     // Display initial balances
-    println!("\n💰 Initial Account Balances:");
+    println!("\nInitial Account Balances:");
     println!("Alice: {} tokens", blockchain.get_balance(&"alice".to_string()));
     println!("Bob: {} tokens", blockchain.get_balance(&"bob".to_string()));
     println!("Charlie: {} tokens", blockchain.get_balance(&"charlie".to_string()));
@@ -69,20 +69,20 @@ fn run_cli_demo() {
         Err(e) => println!("❌ Transaction 3 failed: {}", e),
     }
 
-    println!("\n⛏️  Mining pending transactions...");
+    println!("\nMining pending transactions...");
     println!("Pending transactions: {}", blockchain.get_pending_transaction_count());
 
     // Mine a new block using RPS mining
     match blockchain.mine_pending_transactions("miner".to_string()) {
         Ok(block) => {
-            println!("✅ Block mined successfully with Rock-Paper-Scissors!");
+            println!("Block mined successfully with Rock-Paper-Scissors!");
             println!("Block index: {}", block.index);
             println!("Block hash: {}", block.hash);
             println!("Merkle root: {}", block.merkle_root);
             println!("Transactions in block: {}", block.transactions.len());
             
             if let Some(ref rps_result) = block.rps_mining_result {
-                println!("🎮 RPS Mining Results:");
+                println!("RPS Mining Results:");
                 println!("  - Rounds played: {}", rps_result.rounds);
                 println!("  - Total games: {}", rps_result.total_games);
                 println!("  - Mining time: {} ms", rps_result.mining_time_ms);
@@ -94,26 +94,26 @@ fn run_cli_demo() {
                 println!("  - Win distribution: {:?}", difficulty_info.win_distribution);
             }
         }
-        Err(e) => println!("❌ Mining failed: {}", e),
+        Err(e) => println!("Mining failed: {}", e),
     }
 
     // Display updated balances
-    println!("\n💰 Updated Account Balances:");
+    println!("\nUpdated Account Balances:");
     println!("Alice: {} tokens", blockchain.get_balance(&"alice".to_string()));
     println!("Bob: {} tokens", blockchain.get_balance(&"bob".to_string()));
     println!("Charlie: {} tokens", blockchain.get_balance(&"charlie".to_string()));
     println!("Miner: {} tokens", blockchain.get_balance(&"miner".to_string()));
 
     // Validate the blockchain
-    println!("\n🔍 Blockchain Validation:");
+    println!("\nBlockchain Validation:");
     if blockchain.is_chain_valid() {
-        println!("✅ Blockchain is valid!");
+        println!("Blockchain is valid!");
     } else {
-        println!("❌ Blockchain validation failed!");
+        println!("Blockchain validation failed!");
     }
 
     // Display blockchain statistics
-    println!("\n📊 Blockchain Statistics:");
+    println!("\nBlockchain Statistics:");
     println!("Chain length: {} blocks", blockchain.get_chain_length());
     println!("Current RPS difficulty score: {:.2}", blockchain.get_rps_difficulty_info().difficulty_score());
     println!("Mining reward: {} tokens", blockchain.mining_reward);
@@ -147,11 +147,11 @@ fn run_cli_demo() {
 
     // Display state root
     if let Some(state_root) = blockchain.get_state_root() {
-        println!("\n🗂️  Current State Root: {}", state_root);
+        println!("\nCurrent State Root: {}", state_root);
     }
 
     // Test invalid transaction
-    println!("\n🚫 Testing invalid transaction (insufficient funds):");
+    println!("\nTesting invalid transaction (insufficient funds):");
     let invalid_tx = Transaction::new(
         "charlie".to_string(),
         "alice".to_string(),
@@ -160,12 +160,12 @@ fn run_cli_demo() {
     );
 
     match blockchain.add_transaction(invalid_tx) {
-        Ok(_) => println!("❌ Invalid transaction was accepted (this shouldn't happen)"),
-        Err(e) => println!("✅ Invalid transaction rejected: {}", e),
+        Ok(_) => println!("Invalid transaction was accepted (this shouldn't happen)"),
+        Err(e) => println!("Invalid transaction rejected: {}", e),
     }
 
     // Add more transactions and mine another block
-    println!("\n⛏️  Mining another block...");
+    println!("\nMining another block...");
     let tx4 = Transaction::new(
         "bob".to_string(),
         "alice".to_string(),
@@ -176,11 +176,11 @@ fn run_cli_demo() {
     if blockchain.add_transaction(tx4).is_ok() {
         match blockchain.mine_pending_transactions("miner2".to_string()) {
             Ok(block) => {
-                println!("✅ Second block mined with RPS!");
+                println!("Second block mined with RPS!");
                 println!("Block hash: {}", block.hash);
                 
                 if let Some(ref rps_result) = block.rps_mining_result {
-                    println!("🎮 Second Block RPS Results:");
+                    println!("Second Block RPS Results:");
                     println!("  - Rounds: {}, Games: {}", rps_result.rounds, rps_result.total_games);
                     
                     // Show how difficulty increased
@@ -190,12 +190,12 @@ fn run_cli_demo() {
                              new_difficulty.win_distribution);
                 }
             }
-            Err(e) => println!("❌ Second block mining failed: {}", e),
+            Err(e) => println!("Second block mining failed: {}", e),
         }
     }
 
     // Final blockchain state
-    println!("\n🏁 Final Blockchain State:");
+    println!("\nFinal Blockchain State:");
     println!("Total blocks: {}", blockchain.get_chain_length());
     println!("Blockchain valid: {}", blockchain.is_chain_valid());
     
