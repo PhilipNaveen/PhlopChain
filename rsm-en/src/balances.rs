@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 pub struct Pallet {
 
-    balances: BTreeMap<String, u128> // String for key, u128 for unsigned for positive-only vals
+    pub balances: BTreeMap<String, u128> // String for key, u128 for unsigned for positive-only vals
 }
 
 impl Pallet {
