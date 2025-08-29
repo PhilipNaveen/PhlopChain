@@ -2,7 +2,7 @@ use crate::merkle::{Hash, FastMerkleTree};
 use crate::transaction::{Transaction, Block};
 use crate::system::Pallet as SystemPallet;
 use crate::balances::Pallet as BalancesPallet;
-use crate::rps_mining::{RPSMiner, RPSMiningConfig};
+use crate::rps_mining::RPSMiner;
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 

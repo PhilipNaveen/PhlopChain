@@ -285,7 +285,9 @@ pub struct RPSMiningResult {
 
 #[derive(Debug, Clone)]
 pub struct DifficultyInfo {
+    #[allow(dead_code)]
     pub block_number: u32,
+    #[allow(dead_code)]
     pub total_required_wins: u32,
     pub win_distribution: HashMap<u32, u32>,
     pub total_players: u32,
