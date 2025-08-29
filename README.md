@@ -2,6 +2,12 @@
 
 A blockchain implementation that uses Rock-Paper-Scissors as its mining algorithm instead of traditional proof-of-work.
 
+## Architecture Diagram
+
+![PhlopChain Architecture](blockchain_architecture.png)
+
+*Complete visual overview of PhlopChain's Rock-Paper-Scissors blockchain architecture, showing block structure, Merkle trees, mining process, and system components.*
+
 ## What is PhlopChain?
 
 PhlopChain is a blockchain where miners compete by playing Rock-Paper-Scissors games against 100 virtual players. Instead of solving mathematical puzzles like Bitcoin, miners must win enough games to earn the right to create new blocks.
