@@ -109,9 +109,10 @@ fn main() {
     // Display blockchain statistics
     println!("\n📊 Blockchain Statistics:");
     println!("Chain length: {} blocks", blockchain.get_chain_length());
-    println!("Current difficulty: {}", blockchain.difficulty);
+    println!("Current RPS difficulty score: {:.2}", blockchain.get_rps_difficulty_info().difficulty_score());
     println!("Mining reward: {} tokens", blockchain.mining_reward);
-    println!("Network hash rate: {:.2} H/s", blockchain.get_network_hash_rate());
+    println!("Network game rate: {:.2} games/s", blockchain.get_network_hash_rate());
+    println!("Total RPS games played: {}", blockchain.get_total_rps_games());
 
     // Demonstrate Merkle proof functionality
     println!("\n🌳 Fast Merkle Tree Proof Demonstration:");
@@ -169,8 +170,19 @@ fn main() {
     if blockchain.add_transaction(tx4).is_ok() {
         match blockchain.mine_pending_transactions("miner2".to_string()) {
             Ok(block) => {
-                println!("✅ Second block mined!");
+                println!("✅ Second block mined with RPS!");
                 println!("Block hash: {}", block.hash);
+                
+                if let Some(ref rps_result) = block.rps_mining_result {
+                    println!("🎮 Second Block RPS Results:");
+                    println!("  - Rounds: {}, Games: {}", rps_result.rounds, rps_result.total_games);
+                    
+                    // Show how difficulty increased
+                    let new_difficulty = blockchain.get_rps_difficulty_info();
+                    println!("  - New difficulty score: {:.2}", new_difficulty.difficulty_score());
+                    println!("  - Players with increased requirements: {:?}", 
+                             new_difficulty.win_distribution);
+                }
             }
             Err(e) => println!("❌ Second block mining failed: {}", e),
         }
@@ -181,15 +193,21 @@ fn main() {
     println!("Total blocks: {}", blockchain.get_chain_length());
     println!("Blockchain valid: {}", blockchain.is_chain_valid());
     
-    // Display all blocks
+    // Display all blocks with RPS information
     for (i, block) in blockchain.chain.iter().enumerate() {
         println!("\nBlock {}: {}", i, block.hash.to_hex()[..16].to_string());
         println!("  Transactions: {}", block.transactions.len());
         println!("  Timestamp: {}", block.timestamp);
         if i > 0 {
             println!("  Previous: {}", block.previous_hash.to_hex()[..16].to_string());
+            if let Some(ref rps_result) = block.rps_mining_result {
+                println!("  RPS: {} rounds, {} games, {} ms", 
+                         rps_result.rounds, rps_result.total_games, rps_result.mining_time_ms);
+            }
+        } else {
+            println!("  Genesis block (no RPS mining)");
         }
     }
 
-    println!("\n🎉 PhlopChain demonstration completed successfully!");
+    println!("\n🎉 PhlopChain RPS Mining demonstration completed successfully!");
 }
