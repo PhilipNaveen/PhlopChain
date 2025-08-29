@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhlopChain - RPS Mining Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-section {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .mining-section {
+            display: none;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .mining-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .block-number {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .phlopcoin-earned {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .history-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .blockchain-status {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 PhlopChain</h1>
+            <p>Rock-Paper-Scissors Blockchain Mining</p>
+        </div>
+
+        <!-- Blockchain Status -->
+        <div class="blockchain-status">
+            <div class="status-title">🌐 Network Status</div>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-value" id="totalBlocks">0</div>
+                    <div class="status-label">Total Blocks</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value" id="totalGames">0</div>
+                    <div class="status-label">Games Played</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value" id="difficultyScore">0.00</div>
+                    <div class="status-label">Difficulty Score</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value" id="activeMiners">0</div>
+                    <div class="status-label">Active Miners</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div class="card login-section" id="loginSection">
+            <h2 style="text-align: center; margin-bottom: 25px; color: #667eea;">⛏️ Start Mining</h2>
+            <div class="input-group">
+                <label for="minerName">Miner Name:</label>
+                <input type="text" id="minerName" placeholder="Enter your name" maxlength="20">
+            </div>
+            <button class="btn" onclick="startMining()" style="width: 100%;">
+                🚀 Begin Mining Adventure
+            </button>
+        </div>
+
+        <!-- Mining Section -->
+        <div class="mining-section" id="miningSection">
+            <!-- Miner Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPhlopcoin">0.000000</div>
+                    <div class="stat-label">💰 Total PhlopCoin</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="blocksMined">0</div>
+                    <div class="stat-label">⛏️ Blocks Mined</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="averageReward">0.000000</div>
+                    <div class="stat-label">📊 Average Reward</div>
+                </div>
+            </div>
+
+            <!-- Mining Controls -->
+            <div class="card">
+                <h3 style="margin-bottom: 20px; color: #667eea;">🎮 Mining Control</h3>
+                <button class="btn" id="mineButton" onclick="mineBlock()" style="font-size: 18px; padding: 15px 40px;">
+                    ⛏️ Mine Block
+                </button>
+                <p style="margin-top: 15px; color: #666; font-style: italic;">
+                    Click to start a Rock-Paper-Scissors mining battle with 100 virtual players!
+                </p>
+            </div>
+
+            <!-- Mining History -->
+            <div class="card">
+                <h3 style="margin-bottom: 20px; color: #667eea;">📋 Mining History</h3>
+                <div class="mining-history" id="miningHistory">
+                    <p style="text-align: center; color: #666; font-style: italic;">No blocks mined yet. Start mining to see your history!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        let currentSession = null;
+        let isMining = false;
+
+        // Update blockchain status every 5 seconds
+        setInterval(updateBlockchainStatus, 5000);
+        updateBlockchainStatus();
+
+        async function updateBlockchainStatus() {
+            try {
+                const response = await fetch('/api/blockchain');
+                const status = await response.json();
+                
+                document.getElementById('totalBlocks').textContent = status.total_blocks;
+                document.getElementById('totalGames').textContent = status.total_games_played.toLocaleString();
+                document.getElementById('difficultyScore').textContent = status.current_difficulty_score.toFixed(2);
+                document.getElementById('activeMiners').textContent = status.active_miners;
+            } catch (error) {
+                console.error('Failed to update blockchain status:', error);
+            }
+        }
+
+        async function startMining() {
+            const minerName = document.getElementById('minerName').value.trim();
+            
+            if (!minerName) {
+                showNotification('Please enter your name!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ miner_name: minerName }),
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentSession = result.session;
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('miningSection').style.display = 'block';
+                    updateMinerStats();
+                    showNotification(`Welcome ${minerName}! Ready to mine!`, 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Failed to start mining session', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        async function mineBlock() {
+            if (isMining || !currentSession) return;
+            
+            isMining = true;
+            const mineButton = document.getElementById('mineButton');
+            const originalText = mineButton.innerHTML;
+            mineButton.innerHTML = '⛏️ Mining... <div class="loading"></div>';
+            mineButton.disabled = true;
+
+            try {
+                const response = await fetch('/api/mine', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ session_id: currentSession.id }),
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.session) {
+                    currentSession = result.session;
+                    updateMinerStats();
+                    
+                    if (result.mining_result) {
+                        addMiningHistoryItem(result.mining_result);
+                        showNotification(result.message, 'success');
+                    }
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Mining failed due to network error', 'error');
+                console.error('Error:', error);
+            } finally {
+                isMining = false;
+                mineButton.innerHTML = originalText;
+                mineButton.disabled = false;
+            }
+        }
+
+        function updateMinerStats() {
+            if (!currentSession) return;
+            
+            document.getElementById('totalPhlopcoin').textContent = currentSession.total_phlopcoin.toFixed(6);
+            document.getElementById('blocksMined').textContent = currentSession.blocks_mined;
+            
+            const averageReward = currentSession.blocks_mined > 0 
+                ? (currentSession.total_phlopcoin / currentSession.blocks_mined)
+                : 0;
+            document.getElementById('averageReward').textContent = averageReward.toFixed(6);
+        }
+
+        function addMiningHistoryItem(miningResult) {
+            const historyContainer = document.getElementById('miningHistory');
+            
+            // Clear the "no blocks mined" message
+            if (historyContainer.innerHTML.includes('No blocks mined yet')) {
+                historyContainer.innerHTML = '';
+            }
+            
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-header">
+                    <span class="block-number">🧱 Block #${miningResult.block_number}</span>
+                    <span class="phlopcoin-earned">+${miningResult.phlopcoin_earned.toFixed(6)} PhlopCoin</span>
+                </div>
+                <div class="history-details">
+                    🎮 ${miningResult.games_played.toLocaleString()} games played in ${miningResult.rounds} rounds<br>
+                    ⏰ ${miningResult.timestamp}
+                </div>
+            `;
+            
+            // Add to the top of the history
+            historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Allow Enter key to start mining
+        document.getElementById('minerName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startMining();
+            }
+        });
+    </script>
+</body>
+</html>

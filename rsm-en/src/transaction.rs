@@ -1,7 +1,7 @@
 use crate::merkle::Hash;
 use crate::rps_mining::{RPSMiningResult};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Transaction {
@@ -9,13 +9,16 @@ pub struct Transaction {
     pub to: String,
     pub amount: u128,
     pub nonce: u32,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: u64,
     pub hash: Hash,
 }
 
 impl Transaction {
     pub fn new(from: String, to: String, amount: u128, nonce: u32) -> Self {
-        let timestamp = Utc::now();
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
         let mut tx = Self {
             from,
             to,
@@ -33,7 +36,7 @@ impl Transaction {
     pub fn calculate_hash(&self) -> Hash {
         let data = format!(
             "{}{}{}{}{}",
-            self.from, self.to, self.amount, self.nonce, self.timestamp.timestamp()
+            self.from, self.to, self.amount, self.nonce, self.timestamp
         );
         Hash::from_string(&data)
     }
@@ -54,7 +57,7 @@ impl Transaction {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Block {
     pub index: u32,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: u64,
     pub transactions: Vec<Transaction>,
     pub previous_hash: Hash,
     pub merkle_root: Hash,
@@ -64,7 +67,10 @@ pub struct Block {
 
 impl Block {
     pub fn new(index: u32, transactions: Vec<Transaction>, previous_hash: Hash) -> Self {
-        let timestamp = Utc::now();
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
         let merkle_root = Self::calculate_merkle_root(&transactions);
         
         let mut block = Self {
@@ -96,7 +102,7 @@ impl Block {
         let data = format!(
             "{}{}{}{}{}",
             self.index,
-            self.timestamp.timestamp(),
+            self.timestamp,
             self.previous_hash.to_hex(),
             self.merkle_root.to_hex(),
             rps_data
@@ -152,7 +158,7 @@ impl Block {
             let data = format!(
                 "{}{}{}{}{}",
                 self.index,
-                self.timestamp.timestamp(),
+                self.timestamp,
                 self.previous_hash.to_hex(),
                 self.merkle_root.to_hex(),
                 nonce

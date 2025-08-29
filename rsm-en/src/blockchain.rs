@@ -240,7 +240,7 @@ impl Blockchain {
         let latest_block = self.get_latest_block();
         let prev_block = &self.chain[self.chain.len() - 2];
         
-        let time_diff = (latest_block.timestamp.timestamp() - prev_block.timestamp.timestamp()) as f64;
+        let time_diff = (latest_block.timestamp - prev_block.timestamp) as f64;
         
         // For RPS mining, calculate "hash rate" based on games per second
         if let Some(ref rps_result) = latest_block.rps_mining_result {

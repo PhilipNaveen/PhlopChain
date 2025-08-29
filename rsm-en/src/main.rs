@@ -12,6 +12,12 @@ fn main() {
     println!("🚀 PhlopChain - Fast Merkle Tree Blockchain Implementation");
     println!("{}", "=".repeat(60));
 
+    // Run CLI demonstration
+    run_cli_demo();
+}
+
+fn run_cli_demo() {
+
     // Initialize blockchain
     let mut blockchain = Blockchain::new();
     println!("✅ Blockchain initialized with genesis block");
