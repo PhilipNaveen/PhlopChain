@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
-pub struct Pallet {
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Pallet {
     block_number: u32,
     nonce: BTreeMap<String, u32>
 }
@@ -15,7 +17,6 @@ impl Pallet{
             nonce: BTreeMap::new()
 
         }
-
     } 
 
     pub fn get_block_number(&self) -> u32 {
@@ -23,7 +24,7 @@ impl Pallet{
         self.block_number
     }
 
-    pub fn inc_block_number(&mut self, who: &String){
+    pub fn inc_block_number(&mut self, _who: &String){
 
         self.block_number = self.block_number.checked_add(1).unwrap(); // Fails only @ blockchain overflow
     }

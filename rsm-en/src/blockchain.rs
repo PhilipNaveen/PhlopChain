@@ -117,9 +117,10 @@ impl Blockchain {
         new_block.mine_block(self.difficulty);
 
         // Add mining reward to the miner's balance
+        let current_balance = self.balances.get_balance(&mining_reward_address);
         self.balances.set_balance(
             &mining_reward_address,
-            self.balances.get_balance(&mining_reward_address) + self.mining_reward
+            current_balance + self.mining_reward
         );
 
         // Increment block number

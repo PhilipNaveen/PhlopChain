@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
-pub struct Pallet {
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Pallet {
     pub balances: BTreeMap<String, u128> // String for key, u128 for unsigned for positive-only vals
 }
 
