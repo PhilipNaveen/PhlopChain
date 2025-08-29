@@ -66,15 +66,27 @@ fn main() {
     println!("\n⛏️  Mining pending transactions...");
     println!("Pending transactions: {}", blockchain.get_pending_transaction_count());
 
-    // Mine a new block
+    // Mine a new block using RPS mining
     match blockchain.mine_pending_transactions("miner".to_string()) {
         Ok(block) => {
-            println!("✅ Block mined successfully!");
+            println!("✅ Block mined successfully with Rock-Paper-Scissors!");
             println!("Block index: {}", block.index);
             println!("Block hash: {}", block.hash);
             println!("Merkle root: {}", block.merkle_root);
             println!("Transactions in block: {}", block.transactions.len());
-            println!("Mining nonce: {}", block.nonce);
+            
+            if let Some(ref rps_result) = block.rps_mining_result {
+                println!("🎮 RPS Mining Results:");
+                println!("  - Rounds played: {}", rps_result.rounds);
+                println!("  - Total games: {}", rps_result.total_games);
+                println!("  - Mining time: {} ms", rps_result.mining_time_ms);
+                println!("  - Players who achieved required wins: {}", rps_result.winning_players.len());
+                
+                // Show difficulty progression
+                let difficulty_info = blockchain.get_rps_difficulty_info();
+                println!("  - Current difficulty score: {:.2}", difficulty_info.difficulty_score());
+                println!("  - Win distribution: {:?}", difficulty_info.win_distribution);
+            }
         }
         Err(e) => println!("❌ Mining failed: {}", e),
     }

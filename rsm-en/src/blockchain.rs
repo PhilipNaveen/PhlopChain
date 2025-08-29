@@ -121,20 +121,24 @@ impl Blockchain {
             previous_hash
         );
 
-        new_block.mine_block(self.difficulty);
+        // Use RPS mining instead of traditional proof-of-work
+        match new_block.mine_block_rps(&mut self.rps_miner) {
+            Ok(_) => {
+                // Add mining reward to the miner's balance
+                let current_balance = self.balances.get_balance(&mining_reward_address);
+                self.balances.set_balance(
+                    &mining_reward_address,
+                    current_balance + self.mining_reward
+                );
 
-        // Add mining reward to the miner's balance
-        let current_balance = self.balances.get_balance(&mining_reward_address);
-        self.balances.set_balance(
-            &mining_reward_address,
-            current_balance + self.mining_reward
-        );
+                // Increment block number
+                self.system.inc_block_number(&mining_reward_address);
 
-        // Increment block number
-        self.system.inc_block_number(&mining_reward_address);
-
-        self.chain.push(new_block.clone());
-        Ok(new_block)
+                self.chain.push(new_block.clone());
+                Ok(new_block)
+            }
+            Err(e) => Err(format!("RPS Mining failed: {}", e))
+        }
     }
 
     pub fn get_balance(&mut self, address: &String) -> u128 {
@@ -150,9 +154,14 @@ impl Blockchain {
                 return false;
             }
 
-            // Check proof of work
-            let target = "0".repeat(self.difficulty);
-            if !current_block.hash.to_hex().starts_with(&target) {
+            // Check RPS mining proof instead of traditional proof of work
+            if let Some(ref rps_result) = current_block.rps_mining_result {
+                if !rps_result.success {
+                    return false;
+                }
+                // Additional validation could be added here to verify RPS mining
+            } else if i > 0 {
+                // Non-genesis blocks should have RPS mining results
                 return false;
             }
         }
@@ -232,13 +241,34 @@ impl Blockchain {
         let prev_block = &self.chain[self.chain.len() - 2];
         
         let time_diff = (latest_block.timestamp.timestamp() - prev_block.timestamp.timestamp()) as f64;
-        let target_value = 2_u64.pow(self.difficulty as u32) as f64;
         
-        if time_diff > 0.0 {
-            target_value / time_diff
+        // For RPS mining, calculate "hash rate" based on games per second
+        if let Some(ref rps_result) = latest_block.rps_mining_result {
+            if time_diff > 0.0 {
+                rps_result.total_games as f64 / time_diff
+            } else {
+                0.0
+            }
         } else {
             0.0
         }
+    }
+
+    pub fn get_rps_difficulty_info(&self) -> crate::rps_mining::DifficultyInfo {
+        self.rps_miner.get_difficulty_info()
+    }
+
+    pub fn get_total_rps_games(&self) -> u64 {
+        self.chain.iter()
+            .skip(1) // Skip genesis block
+            .map(|block| {
+                if let Some(ref rps_result) = block.rps_mining_result {
+                    rps_result.total_games
+                } else {
+                    0
+                }
+            })
+            .sum()
     }
 
     pub fn create_state_merkle_tree(&self) -> FastMerkleTree {
