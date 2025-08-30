@@ -94,6 +94,7 @@ fn handle_connection(mut stream: TcpStream, blockchain: SharedBlockchain, sessio
     println!("Received request: {}", request_line); // Debug log
     
     let (status_line, contents) = if request_line.starts_with("GET / ") {
+        println!("📄 Serving index page...");
         ("HTTP/1.1 200 OK".to_string(), get_index_html())
     } else if request_line.starts_with("OPTIONS") {
         // Handle CORS preflight requests
@@ -104,6 +105,8 @@ fn handle_connection(mut stream: TcpStream, blockchain: SharedBlockchain, sessio
         handle_mine_block(&request, blockchain, sessions)
     } else if request_line.starts_with("GET /api/blockchain") {
         handle_blockchain_status(blockchain, sessions)
+    } else if request_line.starts_with("GET /api/history") {
+        handle_mining_history(blockchain, sessions)
     } else if request_line.starts_with("GET /api/status/") {
         let session_id = extract_session_id(request_line);
         handle_get_status(&session_id, sessions)
@@ -267,6 +270,25 @@ fn handle_blockchain_status(blockchain: SharedBlockchain, sessions: SharedSessio
     ("HTTP/1.1 200 OK".to_string(), serde_json::to_string(&status).unwrap())
 }
 
+fn handle_mining_history(_blockchain: SharedBlockchain, sessions: SharedSessions) -> (String, String) {
+    let sessions_guard = sessions.lock().unwrap();
+    
+    // Collect all mining history from all sessions
+    let mut all_mining_history: Vec<MiningResult> = Vec::new();
+    
+    for session in sessions_guard.values() {
+        all_mining_history.extend(session.mining_history.clone());
+    }
+    
+    // Sort by block number (newest first)
+    all_mining_history.sort_by(|a, b| b.block_number.cmp(&a.block_number));
+    
+    // Take last 20 blocks for charts
+    let recent_history: Vec<MiningResult> = all_mining_history.into_iter().take(20).collect();
+    
+    ("HTTP/1.1 200 OK".to_string(), serde_json::to_string(&recent_history).unwrap())
+}
+
 fn handle_get_status(session_id: &str, sessions: SharedSessions) -> (String, String) {
     let sessions_guard = sessions.lock().unwrap();
     if let Some(session) = sessions_guard.get(session_id) {
@@ -303,5 +325,8 @@ fn format_timestamp(time: std::time::SystemTime) -> String {
 }
 
 fn get_index_html() -> String {
-    include_str!("../static/index.html").to_string()
+    println!("🔍 Loading index.html...");
+    let html_content = include_str!("../static/index.html");
+    println!("✅ Successfully loaded HTML file ({} bytes)", html_content.len());
+    html_content.to_string()
 }

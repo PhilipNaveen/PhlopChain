@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self';">
     <title>PhlopChain - RPS Mining Interface</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -267,6 +268,15 @@
 
         .charts-section {
             margin: 30px 0;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            display: none; /* Hide charts initially */
+        }
+
+        .charts-section.visible {
+            display: block; /* Show when mining starts */
         }
 
         .charts-grid {
@@ -277,14 +287,20 @@
         }
 
         .chart-container {
+            border: 1px solid #ddd;
             background: white;
-            border: 2px solid black;
+            padding: 15px;
             border-radius: 5px;
-            padding: 20px;
-            height: 400px;
+            height: 300px; /* Fixed height instead of min-height */
+            width: 100%;
+            display: block !important;
         }
 
-        .chart-title {
+        .chart-container canvas {
+            max-width: 100% !important;
+            max-height: 250px !important;
+            height: 250px !important;
+        }        .chart-title {
             font-weight: bold;
             margin-bottom: 15px;
             text-align: center;
@@ -344,22 +360,31 @@
 
         <!-- Network Trends Charts -->
         <div class="charts-section">
+            <h2 style="text-align: center; margin-bottom: 20px; color: black;">Network Trends</h2>
             <div class="charts-grid">
                 <div class="chart-container">
                     <div class="chart-title">Mining Difficulty Over Time</div>
-                    <canvas id="difficultyChart"></canvas>
+                    <canvas id="difficultyChart" style="background: #f9f9f9;">
+                        <p>Chart loading...</p>
+                    </canvas>
                 </div>
                 <div class="chart-container">
                     <div class="chart-title">Games Per Block</div>
-                    <canvas id="gamesChart"></canvas>
+                    <canvas id="gamesChart" style="background: #f9f9f9;">
+                        <p>Chart loading...</p>
+                    </canvas>
                 </div>
                 <div class="chart-container">
                     <div class="chart-title">PhlopCoin Rewards</div>
-                    <canvas id="rewardsChart"></canvas>
+                    <canvas id="rewardsChart" style="background: #f9f9f9;">
+                        <p>Chart loading...</p>
+                    </canvas>
                 </div>
                 <div class="chart-container">
-                    <div class="chart-title">Mining Efficiency</div>
-                    <canvas id="efficiencyChart"></canvas>
+                    <div class="chart-title">Games Played vs Block</div>
+                    <canvas id="gamesVsBlockChart" style="background: #f9f9f9;">
+                        <p>Chart loading...</p>
+                    </canvas>
                 </div>
             </div>
         </div>
@@ -426,20 +451,69 @@
         let difficultyChart = null;
         let gamesChart = null;
         let rewardsChart = null;
-        let efficiencyChart = null;
+        let gamesVsBlockChart = null;
 
         // Historical data storage
         let blockHistory = [];
-        let maxDataPoints = 20; // Show last 20 blocks
+        // No limit - show all blocks
 
         // Initialize charts when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing charts...');
             initializeCharts();
+            loadHistoricalData();
         });
 
         // Update blockchain status every 5 seconds
         setInterval(updateBlockchainStatus, 5000);
         updateBlockchainStatus();
+
+        async function loadHistoricalData() {
+            try {
+                const response = await fetch('/api/history');
+                const history = await response.json();
+                
+                if (history && history.length > 0) {
+                    // Reverse to get chronological order (oldest first)
+                    blockHistory = history.reverse();
+                    
+                    // Update all charts with historical data
+                    updateAllCharts();
+                }
+            } catch (error) {
+                console.error('Failed to load historical data:', error);
+            }
+        }
+
+        function updateAllCharts() {
+            if (blockHistory.length === 0) return;
+
+            const blockNumbers = blockHistory.map(block => `Block ${block.block_number}`);
+            const gamesPlayed = blockHistory.map(block => block.games_played);
+            const rewards = blockHistory.map(block => block.phlopcoin_earned);
+
+            // Calculate difficulty progression (approximate based on block number)
+            const difficulties = blockHistory.map((block, index) => {
+                return Math.max(1, (index + 1) * 0.1);
+            });
+            
+            // Update all charts
+            difficultyChart.data.labels = blockNumbers;
+            difficultyChart.data.datasets[0].data = difficulties;
+            difficultyChart.update();
+
+            gamesChart.data.labels = blockNumbers;
+            gamesChart.data.datasets[0].data = gamesPlayed;
+            gamesChart.update();
+
+            rewardsChart.data.labels = blockNumbers;
+            rewardsChart.data.datasets[0].data = rewards;
+            rewardsChart.update();
+
+            gamesVsBlockChart.data.labels = blockNumbers;
+            gamesVsBlockChart.data.datasets[0].data = gamesPlayed;
+            gamesVsBlockChart.update();
+        }
 
         async function updateBlockchainStatus() {
             try {
@@ -459,9 +533,28 @@
         }
 
         function initializeCharts() {
+            console.log('Initializing charts...');
+            
+            // Check if Chart.js is loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js not loaded!');
+                return;
+            }
+            
+            // Check if canvas elements exist
+            const canvases = ['difficultyChart', 'gamesChart', 'rewardsChart', 'gamesVsBlockChart'];
+            for (const canvasId of canvases) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.error(`Canvas element ${canvasId} not found!`);
+                    return;
+                }
+                console.log(`Found canvas: ${canvasId}`);
+            }
+
             const chartOptions = {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, // Allow chart to fill container
                 scales: {
                     x: {
                         title: {
@@ -477,122 +570,138 @@
                     legend: {
                         display: false
                     }
+                },
+                animation: {
+                    duration: 500 // Smooth animation for updates
                 }
             };
 
-            // Difficulty Chart
-            difficultyChart = new Chart(document.getElementById('difficultyChart'), {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Difficulty Score',
-                        data: [],
-                        borderColor: 'black',
-                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    ...chartOptions,
-                    scales: {
-                        ...chartOptions.scales,
-                        y: {
-                            ...chartOptions.scales.y,
-                            title: {
-                                display: true,
-                                text: 'Difficulty Score'
+            try {
+                // Difficulty Chart
+                difficultyChart = new Chart(document.getElementById('difficultyChart'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Difficulty Score',
+                            data: [],
+                            borderColor: 'black',
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: {
+                            ...chartOptions.scales,
+                            y: {
+                                ...chartOptions.scales.y,
+                                title: {
+                                    display: true,
+                                    text: 'Difficulty Score'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+                console.log('Difficulty chart created');
 
-            // Games Chart
-            gamesChart = new Chart(document.getElementById('gamesChart'), {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Games Played',
-                        data: [],
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        borderColor: 'black',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    ...chartOptions,
-                    scales: {
-                        ...chartOptions.scales,
-                        y: {
-                            ...chartOptions.scales.y,
-                            title: {
-                                display: true,
-                                text: 'Games Played'
+                // Games Chart
+                gamesChart = new Chart(document.getElementById('gamesChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Games Played',
+                            data: [],
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            borderColor: 'black',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: {
+                            ...chartOptions.scales,
+                            y: {
+                                ...chartOptions.scales.y,
+                                title: {
+                                    display: true,
+                                    text: 'Games Played'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+                console.log('Games chart created');
 
-            // Rewards Chart
-            rewardsChart = new Chart(document.getElementById('rewardsChart'), {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'PhlopCoin Earned',
-                        data: [],
-                        borderColor: '#666',
-                        backgroundColor: 'rgba(102, 102, 102, 0.1)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    ...chartOptions,
-                    scales: {
-                        ...chartOptions.scales,
-                        y: {
-                            ...chartOptions.scales.y,
-                            title: {
-                                display: true,
-                                text: 'PhlopCoin Earned'
+                // Rewards Chart
+                rewardsChart = new Chart(document.getElementById('rewardsChart'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'PhlopCoin Earned',
+                            data: [],
+                            borderColor: '#666',
+                            backgroundColor: 'rgba(102, 102, 102, 0.1)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: {
+                            ...chartOptions.scales,
+                            y: {
+                                ...chartOptions.scales.y,
+                                title: {
+                                    display: true,
+                                    text: 'PhlopCoin Earned'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+                console.log('Rewards chart created');
 
-            // Efficiency Chart
-            efficiencyChart = new Chart(document.getElementById('efficiencyChart'), {
-                type: 'scatter',
-                data: {
-                    datasets: [{
-                        label: 'Mining Efficiency',
-                        data: [],
-                        backgroundColor: 'black',
-                        borderColor: 'black'
-                    }]
-                },
-                options: {
-                    ...chartOptions,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Games Played'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'PhlopCoin per Game'
+                // Games vs Block Chart
+                gamesVsBlockChart = new Chart(document.getElementById('gamesVsBlockChart'), {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Games Played',
+                            data: [],
+                            borderColor: 'black',
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Block Number'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Games Played'
+                                },
+                                beginAtZero: true
                             }
                         }
                     }
-                }
-            });
+                });
+                console.log('Games vs Block chart created');
+                console.log('All charts initialized successfully');
+                
+            } catch (error) {
+                console.error('Error creating charts:', error);
+            }
         }
 
         function updateChartsData(status) {
@@ -661,6 +770,15 @@
                     if (result.mining_result) {
                         addMiningHistoryItem(result.mining_result);
                         showNotification(result.message, 'success');
+                        
+                        // Show charts section after first successful mining
+                        const chartsSection = document.querySelector('.charts-section');
+                        if (chartsSection && !chartsSection.classList.contains('visible')) {
+                            chartsSection.classList.add('visible');
+                        }
+                        
+                        // Update charts with new mining data
+                        updateChartsWithMiningData(result.mining_result);
                     }
                 } else {
                     showNotification(result.message, 'error');
@@ -719,46 +837,10 @@
             // Add to block history
             blockHistory.push(miningResult);
             
-            // Keep only the last maxDataPoints blocks
-            if (blockHistory.length > maxDataPoints) {
-                blockHistory = blockHistory.slice(-maxDataPoints);
-            }
-
-            // Get current difficulty score (we'll need to fetch this or calculate it)
-            const currentDifficulty = parseFloat(document.getElementById('difficultyScore').textContent) || 0;
-
-            // Update chart data
-            const blockNumbers = blockHistory.map(block => `Block ${block.block_number}`);
-            const gamesPlayed = blockHistory.map(block => block.games_played);
-            const rewards = blockHistory.map(block => block.phlopcoin_earned);
-            const efficiency = blockHistory.map(block => ({
-                x: block.games_played,
-                y: block.phlopcoin_earned / block.games_played
-            }));
-
-            // Update Difficulty Chart (approximate difficulty based on block number)
-            const difficulties = blockHistory.map((block, index) => {
-                // Simple calculation: difficulty increases with each block
-                return Math.max(1, block.block_number * 0.1);
-            });
+            // Keep all data points - no limit
             
-            difficultyChart.data.labels = blockNumbers;
-            difficultyChart.data.datasets[0].data = difficulties;
-            difficultyChart.update();
-
-            // Update Games Chart
-            gamesChart.data.labels = blockNumbers;
-            gamesChart.data.datasets[0].data = gamesPlayed;
-            gamesChart.update();
-
-            // Update Rewards Chart
-            rewardsChart.data.labels = blockNumbers;
-            rewardsChart.data.datasets[0].data = rewards;
-            rewardsChart.update();
-
-            // Update Efficiency Chart
-            efficiencyChart.data.datasets[0].data = efficiency;
-            efficiencyChart.update();
+            // Update all charts with the new data
+            updateAllCharts();
         }
 
         function showNotification(message, type) {
