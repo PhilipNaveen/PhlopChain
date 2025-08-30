@@ -4,7 +4,7 @@ A blockchain implementation that uses Rock-Paper-Scissors as its mining algorith
 
 
 
-![GUI](UI.png)
+![GUI](UI.gif)
 
 *Complete visual overview of PhlopChain's Rock-Paper-Scissors blockchain architecture, showing block structure, Merkle trees, mining process, and system components.*
 
