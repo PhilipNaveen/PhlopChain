@@ -1,4 +1,4 @@
-# PhlopChain
+# PhlopChain: A Custom Rust Blockchain
 
 A blockchain implementation that uses Rock-Paper-Scissors as its mining algorithm instead of traditional proof-of-work.
 
