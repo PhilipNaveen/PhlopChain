@@ -32,6 +32,7 @@ struct MiningResult {
     games_played: u64,
     rounds: u32,
     timestamp: String,
+    block_hash: String, // Add block hash
 }
 
 #[derive(Debug, Deserialize)]
@@ -214,6 +215,7 @@ fn handle_mine_block(request: &str, blockchain: SharedBlockchain, sessions: Shar
                             games_played: rps_result.total_games,
                             rounds: rps_result.rounds,
                             timestamp: format_timestamp(std::time::SystemTime::now()),
+                            block_hash: format!("{}", block.hash), // Convert hash to string
                         };
                         
                         session.total_phlopcoin += phlopcoin_earned;
